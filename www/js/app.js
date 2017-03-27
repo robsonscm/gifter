@@ -107,10 +107,10 @@ var app = {
                     //
                     // let dob = moment(person.dob).
                     //
-                    let li = rscmLib.createNewDOM({type: "li"   , class: "table-view-cell media"});
+                    let li = rscmLib.createNewDOM({type: "li"   , class: "table-view-cell media", "data-id":person.id});
                     let s1 = rscmLib.createNewDOM({type: "span" , class: "name"});
-                    let a1 = rscmLib.createNewDOM({type: "a"    , id: "edit-person", innerHTML: person.fullName, href: "#personModal"});
-                    let a2 = rscmLib.createNewDOM({type: "a"    , class: "navigate-right pull-right", href: "gifts.html", id: "go-gifts"});
+                    let a1 = rscmLib.createNewDOM({type: "a"    , class: "edit-person", innerHTML: person.fullName, href: "#personModal"});
+                    let a2 = rscmLib.createNewDOM({type: "a"    , class: "navigate-right pull-right", href: "gifts.html"});
                     let s2 = rscmLib.createNewDOM({type: "span" , class: "dob", innerHTML: person.dob });
                     //
                     s1.appendChild(a1);
@@ -119,22 +119,24 @@ var app = {
                     li.appendChild(a2);
                     ul.appendChild(li);
                     //
-                    document.getElementById("edit-person").addEventListener("touchstart",function () {
+                    a1.addEventListener("touchstart",function (ev) {
                         //
-                        let personEdit = app.getPerson(person.id);
+                        console.log(ev.target.parentNode.parentNode.getAttribute("data-id"));
+                        let personEdit = app.getPerson(ev.target.parentNode.parentNode.getAttribute("data-id"));
+                        console.log(personEdit);
                         document.getElementById("fullName").value = personEdit[0].fullName;
                         document.getElementById("dateBirth").value = moment(personEdit[0].dob,"MMMM Do YYYY").format("YYYY-MM-DD");
-                        this.currentPerson = personEdit[0].id;
+                        app.currentPerson = personEdit[0].id;
                         //
                     });
-                    //
-                    document.getElementById("go-gifts").addEventListener("touchstart",function () {
+
+                    a2.addEventListener("touchstart",function (ev) {
                         //
-                        app.currentPerson = person.id;
+                        app.currentPerson = ev.target.parentNode.getAttribute("data-id");
                         console.log(app.currentPerson);
                         //
                     });
-                    //
+
                 });
                 break;
             //
@@ -201,6 +203,7 @@ var app = {
         this.peopleList.people.push(person);
         rscmLib.setLocalStorage(this.peopleList);
         //
+        document.querySelector(".input-group").reset();
         let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
         document.querySelector("#close-modal-person").dispatchEvent(myClick);
         //
@@ -211,6 +214,7 @@ var app = {
     clickBtnClose: function (ev){
         let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
         try{
+            document.querySelector(".input-group").reset();
             console.log("person");
             document.querySelector("#close-modal-person").dispatchEvent(myClick);
         }catch (err){
@@ -222,7 +226,7 @@ var app = {
     getPerson: function (id) {
         console.log(id);
         return this.peopleList.people.filter(function (person) {
-            return person.id === id;
+            return person.id.toString() === id;
         });
     }
 };
