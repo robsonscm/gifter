@@ -24,9 +24,9 @@ var app = {
     // Application Constructor
     initialize: function() {
         (window.device) ?
-            document.addEventListener('deviceready', this.onDeviceReady.bind(this), false) :
-            document.addEventListener('DOMContentLoaded', this.onDeviceReady.bind(this), false);
-        // document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+            document.addEventListener('deviceready', app.onDeviceReady.bind(app), false) :
+            document.addEventListener('DOMContentLoaded', app.onDeviceReady.bind(app), false);
+        // document.addEventListener('deviceready', app.onDeviceReady.bind(app), false);
     },
 
     // deviceready Event Handler
@@ -34,7 +34,7 @@ var app = {
     // Bind any cordova events here. Common events are:
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
-        this.receivedEvent('deviceready');
+        app.receivedEvent('deviceready');
         window.addEventListener('push', app.pageChanged);
     },
 
@@ -49,10 +49,9 @@ var app = {
 
         console.log('Received Event: ' + id);
         
-        this.currentPage = document.querySelector(".content").id;
-
-        document.querySelector("#btn-ok-person").addEventListener("touchstart", this.saveNew);
-        document.querySelector("#btn-close-person").addEventListener("touchstart", this.clickBtnClose);
+        app.currentPage = document.querySelector(".content").id;
+        document.querySelector("#btn-ok-person").addEventListener("touchstart", app.saveNew);
+        document.querySelector("#btn-close-person").addEventListener("touchstart", app.clickBtnClose);
     
         // localStorage.clear();
         try {
@@ -64,31 +63,33 @@ var app = {
             rscmLib.setLocalStorage({people:[]});
         }
         
-        this.showList(this.currentPage);
+        app.showList(app.currentPage);
     },
     
     pageChanged: function(){
         //
-        this.currentPage = document.querySelector(".content").id;
-        console.log(this.currentPage);
-        switch(this.currentPage) {
+        app.currentPage = document.querySelector(".content").id;
+        console.log(app.currentPage);
+        switch(app.currentPage) {
             case 'page-people':
-                document.querySelector("#btn-ok-person").addEventListener("touchstart", this.clickBtnClose);
-                document.querySelector("#btn-close-person").addEventListener("touchstart", this.clickBtnClose);
-                
-                console.log('You are on '.concat(this.currentPage));
+                document.getElementById("add-person").addEventListener("touchstart", function () {
+                    document.getElementById("btn-ok-person").addEventListener("touchstart", app.saveNew);
+                    document.getElementById("btn-close-person").addEventListener("touchstart", app.clickBtnClose);
+                });
+                console.log('You are on '.concat(app.currentPage));
                 break;
             case 'page-gifts':
-                document.querySelector("#btn-ok-gift").addEventListener("touchstart", this.clickBtnClose);
-                document.querySelector("#btn-close-gift").addEventListener("touchstart", this.clickBtnClose);
-
-                console.log('You are on '.concat(this.currentPage));
+                document.getElementById("add-gift").addEventListener("touchstart", function () {
+                    document.getElementById("btn-ok-gift").addEventListener("touchstart", app.clickBtnClose);
+                    document.getElementById("btn-close-gift").addEventListener("touchstart", app.clickBtnClose);
+                });
+                console.log('You are on '.concat(app.currentPage));
                 break;
             default:
                 console.log('Page 404!')
         };
-        //
-        app.showList(this.currentPage);
+
+        app.showList(app.currentPage);
     },
     
     showList: function(page){
@@ -100,17 +101,17 @@ var app = {
                 ul = document.getElementById("contact-list");
                 ul.innerHTML = "";
         
-                this.peopleList = rscmLib.getLocalStorage() || {"people": []};
-                console.log(this.peopleList);
+                app.peopleList = rscmLib.getLocalStorage() || {"people": []};
+                console.log(app.peopleList);
         
-                this.peopleList.people.forEach(function (person) {
+                app.peopleList.people.forEach(function (person) {
                     //
                     // let dob = moment(person.dob).
                     //
-                    let li = rscmLib.createNewDOM({type: "li"   , class: "table-view-cell media"});
+                    let li = rscmLib.createNewDOM({type: "li"   , class: "table-view-cell media", "data-id":person.id});
                     let s1 = rscmLib.createNewDOM({type: "span" , class: "name"});
-                    let a1 = rscmLib.createNewDOM({type: "a"    , id: "edit-person", innerHTML: person.fullName, href: "#personModal"});
-                    let a2 = rscmLib.createNewDOM({type: "a"    , class: "navigate-right pull-right", href: "gifts.html", id: "go-gifts"});
+                    let a1 = rscmLib.createNewDOM({type: "a"    , class: "edit-person", innerHTML: person.fullName, href: "#personModal"});
+                    let a2 = rscmLib.createNewDOM({type: "a"    , class: "navigate-right pull-right", href: "gifts.html"});
                     let s2 = rscmLib.createNewDOM({type: "span" , class: "dob", innerHTML: person.dob });
                     //
                     s1.appendChild(a1);
@@ -119,29 +120,31 @@ var app = {
                     li.appendChild(a2);
                     ul.appendChild(li);
                     //
-                    document.getElementById("edit-person").addEventListener("touchstart",function () {
+                    a1.addEventListener("touchstart",function (ev) {
                         //
-                        let personEdit = app.getPerson(person.id);
+                        console.log(ev.target.parentNode.parentNode.getAttribute("data-id"));
+                        let personEdit = app.getPerson(ev.target.parentNode.parentNode.getAttribute("data-id"));
+                        console.log(personEdit);
                         document.getElementById("fullName").value = personEdit[0].fullName;
                         document.getElementById("dateBirth").value = moment(personEdit[0].dob,"MMMM Do YYYY").format("YYYY-MM-DD");
-                        this.currentPerson = personEdit[0].id;
+                        app.currentPerson = personEdit[0].id;
                         //
                     });
-                    //
-                    document.getElementById("go-gifts").addEventListener("touchstart",function () {
+
+                    a2.addEventListener("touchstart",function (ev) {
                         //
-                        app.currentPerson = person.id;
+                        app.currentPerson = ev.target.parentNode.getAttribute("data-id");
                         console.log(app.currentPerson);
                         //
                     });
-                    //
+
                 });
                 break;
             //
             case 'page-gifts':
                 console.log("gifts' list");
                 //
-                let person = this.getPerson(app.currentPerson);
+                let person = app.getPerson(app.currentPerson);
                 console.log(person);
                 ul = document.getElementById("gift-list");
                 ul.innerHTML = "";
@@ -173,14 +176,14 @@ var app = {
     saveNew: function(ev){
         ev.preventDefault();
         //
-        this.peopleList = rscmLib.getLocalStorage() || {"people":[]};
+        app.peopleList = rscmLib.getLocalStorage() || {"people":[]};
         let person = {"id": Date.now(),
                       "fullName": document.getElementById("fullName").value,
                       "dob": moment(document.getElementById("dateBirth").value).format("MMMM Do YYYY"),
                       "ideas":[]};
-        console.log(this.peopleList);
-        this.peopleList.people.push(person);
-        rscmLib.setLocalStorage(this.peopleList);
+        console.log(app.peopleList);
+        app.peopleList.people.push(person);
+        rscmLib.setLocalStorage(app.peopleList);
         //
         let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
         document.querySelector("#close-modal-person").dispatchEvent(myClick);
@@ -192,15 +195,16 @@ var app = {
     saveGift: function(ev){
         ev.preventDefault();
         //
-        this.peopleList = rscmLib.getLocalStorage() || {"people":[]};
+        app.peopleList = rscmLib.getLocalStorage() || {"people":[]};
         let person = {"id": Date.now(),
             "fullName": document.getElementById("fullName").value,
             "dob": moment(document.getElementById("dateBirth").value).format("MMMM Do YYYY"),
             "ideas":[]};
-        console.log(this.peopleList);
-        this.peopleList.people.push(person);
-        rscmLib.setLocalStorage(this.peopleList);
+        console.log(app.peopleList);
+        app.peopleList.people.push(person);
+        rscmLib.setLocalStorage(app.peopleList);
         //
+        document.querySelector(".input-group").reset();
         let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
         document.querySelector("#close-modal-person").dispatchEvent(myClick);
         //
@@ -211,18 +215,19 @@ var app = {
     clickBtnClose: function (ev){
         let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
         try{
+            document.querySelector(".input-group").reset();
             console.log("person");
-            document.querySelector("#close-modal-person").dispatchEvent(myClick);
+            document.getElementById("close-modal-person").dispatchEvent(myClick);
         }catch (err){
             console.log("gift");
-            document.querySelector("#close-modal-gift").dispatchEvent(myClick);
+            document.getElementById("close-modal-gift").dispatchEvent(myClick);
         }
     },
     
     getPerson: function (id) {
         console.log(id);
-        return this.peopleList.people.filter(function (person) {
-            return person.id === id;
+        return app.peopleList.people.filter(function (person) {
+            return person.id.toString() === id;
         });
     }
 };
