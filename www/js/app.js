@@ -50,7 +50,7 @@ var app = {
         console.log('Received Event: ' + id);
         
         app.currentPage = document.querySelector(".content").id;
-        document.querySelector("#btn-ok-person").addEventListener("touchstart", app.saveNew);
+        document.querySelector("#btn-ok-person").addEventListener("touchstart", app.savePerson);
         document.querySelector("#btn-close-person").addEventListener("touchstart", app.clickBtnClose);
     
         // localStorage.clear();
@@ -73,14 +73,14 @@ var app = {
         switch(app.currentPage) {
             case 'page-people':
                 document.getElementById("add-person").addEventListener("touchstart", function () {
-                    document.getElementById("btn-ok-person").addEventListener("touchstart", app.saveNew);
+                    document.getElementById("btn-ok-person").addEventListener("touchstart", app.savePerson);
                     document.getElementById("btn-close-person").addEventListener("touchstart", app.clickBtnClose);
                 });
                 console.log('You are on '.concat(app.currentPage));
                 break;
             case 'page-gifts':
                 document.getElementById("add-gift").addEventListener("touchstart", function () {
-                    document.getElementById("btn-ok-gift").addEventListener("touchstart", app.clickBtnClose);
+                    document.getElementById("btn-ok-gift").addEventListener("touchstart", app.saveGift);
                     document.getElementById("btn-close-gift").addEventListener("touchstart", app.clickBtnClose);
                 });
                 console.log('You are on '.concat(app.currentPage));
@@ -137,7 +137,7 @@ var app = {
                         console.log(app.currentPerson);
                         //
                     });
-
+                    //
                 });
                 break;
             //
@@ -149,10 +149,10 @@ var app = {
                 ul = document.getElementById("gift-list");
                 ul.innerHTML = "";
                 //
-                person[0].ideas.forEach(function (gift) {
+                person[0].ideas.forEach(function (gift, index) {
                     //
                     let li = rscmLib.createNewDOM({type: "li"   , class: "table-view-cell media"});
-                    let s1 = rscmLib.createNewDOM({type: "span" , class: "pull-right icon icon-trash midline"});
+                    let s1 = rscmLib.createNewDOM({type: "span" , class: "pull-right icon icon-trash midline", "data-id":index});
                     let dv = rscmLib.createNewDOM({type: "div"  , class: "media-body", innerHTML: gift.idea});
                     let p1 = rscmLib.createNewDOM({type: "p"    , innerHTML: gift.at});
                     let p2 = rscmLib.createNewDOM({type: "p"    });
@@ -167,32 +167,15 @@ var app = {
                     li.appendChild(dv);
                     ul.appendChild(li);
                     //
+                    s1.addEventListener("touchend", app.deleteGift);
+                    //
                 });
                 //
                 break;
         };
     },
     
-    saveNew: function(ev){
-        ev.preventDefault();
-        //
-        app.peopleList = rscmLib.getLocalStorage() || {"people":[]};
-        let person = {"id": Date.now(),
-                      "fullName": document.getElementById("fullName").value,
-                      "dob": moment(document.getElementById("dateBirth").value).format("MMMM Do YYYY"),
-                      "ideas":[]};
-        console.log(app.peopleList);
-        app.peopleList.people.push(person);
-        rscmLib.setLocalStorage(app.peopleList);
-        //
-        let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
-        document.querySelector("#close-modal-person").dispatchEvent(myClick);
-        //
-        location.reload();
-        //
-    },
-    
-    saveGift: function(ev){
+    savePerson: function (ev) {
         ev.preventDefault();
         //
         app.peopleList = rscmLib.getLocalStorage() || {"people":[]};
@@ -204,22 +187,59 @@ var app = {
         app.peopleList.people.push(person);
         rscmLib.setLocalStorage(app.peopleList);
         //
-        document.querySelector(".input-group").reset();
         let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
         document.querySelector("#close-modal-person").dispatchEvent(myClick);
         //
-        location.reload();
+        app.showList(app.currentPage);
         //
     },
     
-    clickBtnClose: function (ev){
+    saveGift: function(ev){
+        ev.preventDefault();
+        //
+        let person = app.getPerson(app.currentPerson);
+        let gift = {"idea": document.getElementById("ideaDesc").value,
+                    "at": document.getElementById("store").value,
+                    "cost": document.getElementById("cost").value,
+                    "url": document.getElementById("url").value};
+        for (var i=0, size=app.peopleList.people.length; i<size; i++){
+            if (app.peopleList.people[i].id === person[0].id) {
+                app.peopleList.people[i].ideas.push(gift);
+                break;
+            }
+        }
+        rscmLib.setLocalStorage(app.peopleList);
+        //
+        document.querySelector(".input-group").reset();
+        let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
+        document.getElementById("close-modal-gift").dispatchEvent(myClick);
+        //
+        app.showList(app.currentPage);
+    },
+    
+    deleteGift: function (ev) {
+        let person = app.getPerson(app.currentPerson);
+        for (var i=0, size=app.peopleList.people.length; i<size; i++){
+            if (app.peopleList.people[i].id === person[0].id) {
+                app.peopleList.people[i].ideas = app.peopleList.people[i].ideas.filter(function (gift, index) {
+                    return index.toString() !== ev.currentTarget.getAttribute("data-id");
+                });
+                break;
+            }
+        }
+        rscmLib.setLocalStorage(app.peopleList);
+        //
+        app.showList(app.currentPage);
+        //
+    },
+    
+    clickBtnClose: function (){
         let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
         try{
             document.querySelector(".input-group").reset();
-            console.log("person");
             document.getElementById("close-modal-person").dispatchEvent(myClick);
         }catch (err){
-            console.log("gift");
+            document.querySelector(".input-group").reset();
             document.getElementById("close-modal-gift").dispatchEvent(myClick);
         }
     },
