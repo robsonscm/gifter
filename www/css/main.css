@@ -30,3 +30,7 @@ span.dob{
     top: 40%;
     right: 5%;
 }
+
+#btn-del-person {
+    display: none;
+}
