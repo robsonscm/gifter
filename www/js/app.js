@@ -61,6 +61,7 @@ var app = {
         switch(app.currentPage) {
             case 'page-people':
                 // app.setEventsModalPerson();
+                app.currentPerson = null;
                 document.getElementById("add-person").addEventListener("touchstart", app.setEventsModalPerson);
                 app.listPerson();
                 console.log('You are on '.concat(app.currentPage));
@@ -173,33 +174,52 @@ var app = {
     savePerson: function (ev) {
         ev.preventDefault();
         //
+        console.log(app.currentPerson);
+        //
         app.peopleList = rscmLib.getLocalStorage() || {"people":[]};
-        let person = {"id": Date.now(),
-            "fullName": document.getElementById("fullName").value,
-            "dob": moment(document.getElementById("dateBirth").value).format("MMMM Do YYYY"),
-            "ideas":[]};
-        // console.log(app.peopleList);
-        app.peopleList.people.push(person);
-        rscmLib.setLocalStorage(app.peopleList);
+        if (app.currentPerson || ""){
+            //
+            let indexPerson = app.peopleList.people.findIndex(function (peep) {
+                return peep.id == app.currentPerson;
+            });
+            app.peopleList.people[indexPerson].fullName = document.getElementById("fullName").value;
+            app.peopleList.people[indexPerson].dob = moment(document.getElementById("dateBirth").value).format("MMMM Do YYYY");
+            rscmLib.setLocalStorage(app.peopleList);
+            app.peopleList = rscmLib.getLocalStorage();
+            app.currentPerson = null;
+            //
+        } else {
+            //
+            let person = {"id": Date.now(),
+                "fullName": document.getElementById("fullName").value,
+                "dob": moment(document.getElementById("dateBirth").value).format("MMMM Do YYYY"),
+                "ideas":[]};
+            // console.log(app.peopleList);
+            app.peopleList.people.push(person);
+            rscmLib.setLocalStorage(app.peopleList);
+            //
+        }
         //
         let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
         document.querySelector("#close-modal-person").dispatchEvent(myClick);
         //
         app.listPerson();
         //
+        document.querySelector(".input-group").reset();
         document.getElementById("btn-ok-person").removeEventListener("touchstart", app.savePerson);
     },
     
     editPerson: function (ev) {
         //
-        console.log("edit person");
         document.getElementById("add-person").addEventListener("touchstart", app.setEventsModalPerson);
+        app.setEventsModalPerson();
+        document.getElementById("btn-del-person").style.display = "block";
+        //
         let personEdit = app.getPerson(ev.target.parentNode.parentNode.getAttribute("data-id"));
         document.getElementById("fullName").value = personEdit[0].fullName;
         document.getElementById("dateBirth").value = moment(personEdit[0].dob,"MMMM Do YYYY").format("YYYY-MM-DD");
         app.currentPerson = personEdit[0].id;
-        app.setEventsModalPerson();
-        document.getElementById("btn-del-person").style.display = "block";
+        //
     },
     
     deletePerson:  function () {
@@ -216,6 +236,8 @@ var app = {
         //
         app.listPerson();
         //
+        app.currentPerson = null;
+        document.querySelector(".input-group").reset();
         document.getElementById("btn-del-person").removeEventListener("touchstart", app.deletePerson);
     },
     
@@ -269,13 +291,14 @@ var app = {
     clickBtnClose: function (){
         let myClick = new CustomEvent('touchend', { bubbles: true, cancelable: true });
         try{
-            document.querySelector(".input-group").reset();
             document.getElementById("close-modal-person").dispatchEvent(myClick);
             document.getElementById("btn-close-person").removeEventListener("touchstart", app.clickBtnClose);
-        }catch (err){
             document.querySelector(".input-group").reset();
+            app.currentPerson = null;
+        }catch (err){
             document.getElementById("close-modal-gift").dispatchEvent(myClick);
             document.getElementById("btn-close-gift").removeEventListener("touchstart", app.clickBtnClose);
+            document.querySelector(".input-group").reset();
         }
     },
     
