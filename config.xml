@@ -26,12 +26,12 @@
         <splash src="www/img/splash/gifter-splash-XXHDPI.png"  density="port-xxhdpi"/>
         <splash src="www/img/splash/gifter-splash-XXXHDPI.png" density="port-xxxhdpi"/>
         <!---->
-        <icon src="www/img/icons/gifter_ldpi.png"   density="ldpi" />
-        <icon src="www/img/icons/gifter_mdpi.png"   density="mdpi" />
-        <icon src="www/img/icons/gifter_hdpi.png"   density="hdpi" />
-        <icon src="www/img/icons/gifter_xhdpi.png" density="xhdpi" />
-        <icon src="www/img/icons/gifter_xxhdpi.png" density="xxhdpi" />
-        <icon src="www/img/icons/gifter_xxxhdpi.png" density="xxxhdpi" />
+        <icon src="www/img/icons/gifter_ldpi_36.png"   density="ldpi" />
+        <icon src="www/img/icons/gifter_mdpi_48.png"   density="mdpi" />
+        <icon src="www/img/icons/gifter_hdpi_72.png"   density="hdpi" />
+        <icon src="www/img/icons/gifter_xhdpi_96.png" density="xhdpi" />
+        <icon src="www/img/icons/gifter_xxhdpi_144.png" density="xxhdpi" />
+        <icon src="www/img/icons/gifter_xxxhdpi_192.png" density="xxxhdpi" />
         <!---->
     </platform>
     <preference name="Orientation" value="portrait" />
