@@ -182,11 +182,13 @@ var app = {
             let indexPerson = app.peopleList.people.findIndex(function (peep) {
                 return peep.id == app.currentPerson;
             });
-            app.peopleList.people[indexPerson].fullName = document.getElementById("fullName").value;
-            app.peopleList.people[indexPerson].dob = moment(document.getElementById("dateBirth").value).format("MMMM Do YYYY");
-            rscmLib.setLocalStorage(app.peopleList);
-            app.peopleList = rscmLib.getLocalStorage();
-            app.currentPerson = null;
+            if (indexPerson > -1) {
+                app.peopleList.people[indexPerson].fullName = document.getElementById("fullName").value;
+                app.peopleList.people[indexPerson].dob = moment(document.getElementById("dateBirth").value).format("MMMM Do YYYY");
+                rscmLib.setLocalStorage(app.peopleList);
+                app.peopleList = rscmLib.getLocalStorage();
+                app.currentPerson = null;
+            }
             //
         } else {
             //

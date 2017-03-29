@@ -12,6 +12,9 @@
         },
         "cordova-plugin-device": {
             "PACKAGE_NAME": "stra0165.edumedia.ca.gifterV3"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "stra0165.edumedia.ca.gifterV3"
         }
     },
     "dependent_plugins": {}
