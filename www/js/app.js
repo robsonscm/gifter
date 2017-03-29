@@ -60,12 +60,14 @@ var app = {
         // console.log(app.currentPage);
         switch(app.currentPage) {
             case 'page-people':
-                app.setEventsModalPerson();
+                // app.setEventsModalPerson();
+                document.getElementById("add-person").addEventListener("touchstart", app.setEventsModalPerson);
                 app.listPerson();
                 console.log('You are on '.concat(app.currentPage));
                 break;
             case 'page-gifts':
-                app.setEventsModalGift();
+                // app.setEventsModalGift();
+                document.getElementById("add-gift").addEventListener("touchstart", app.setEventsModalGift);
                 app.listGifts();
                 console.log('You are on '.concat(app.currentPage));
                 break;
@@ -75,20 +77,32 @@ var app = {
     },
     
     setEventsModalPerson: function(){
-        document.getElementById("add-person").addEventListener("touchstart", function () {
-            document.getElementById("btn-ok-person").addEventListener("touchstart", app.savePerson);
-            document.getElementById("btn-close-person").addEventListener("touchstart", app.clickBtnClose);
-            document.getElementById("btn-del-person").addEventListener("touchstart", app.deletePerson);
-            document.getElementById("btn-del-person").style.display = "none";
-        });
+        document.getElementById("btn-ok-person").addEventListener("touchstart", app.savePerson);
+        document.getElementById("btn-close-person").addEventListener("touchstart", app.clickBtnClose);
+        document.getElementById("btn-del-person").addEventListener("touchstart", app.deletePerson);
+        document.getElementById("btn-del-person").style.display = "none";
     },
     
+    // setEventsModalPerson: function(){
+    //     document.getElementById("add-person").addEventListener("touchstart", function () {
+    //         document.getElementById("btn-ok-person").addEventListener("touchstart", app.savePerson);
+    //         document.getElementById("btn-close-person").addEventListener("touchstart", app.clickBtnClose);
+    //         document.getElementById("btn-del-person").addEventListener("touchstart", app.deletePerson);
+    //         document.getElementById("btn-del-person").style.display = "none";
+    //     });
+    // },
+    
     setEventsModalGift: function () {
-        document.getElementById("add-gift").addEventListener("touchstart", function () {
-            document.getElementById("btn-ok-gift").addEventListener("touchstart", app.saveGift);
-            document.getElementById("btn-close-gift").addEventListener("touchstart", app.clickBtnClose);
-        });
+        document.getElementById("btn-ok-gift").addEventListener("touchstart", app.saveGift);
+        document.getElementById("btn-close-gift").addEventListener("touchstart", app.clickBtnClose);
     },
+
+    // setEventsModalGift: function () {
+    //     document.getElementById("add-gift").addEventListener("touchstart", function () {
+    //         document.getElementById("btn-ok-gift").addEventListener("touchstart", app.saveGift);
+    //         document.getElementById("btn-close-gift").addEventListener("touchstart", app.clickBtnClose);
+    //     });
+    // },
     
     listPerson: function () {
         let ul = document.getElementById("contact-list");
@@ -168,10 +182,13 @@ var app = {
         //
         app.listPerson();
         //
+        document.getElementById("btn-ok-person").removeEventListener("touchstart", app.savePerson);
     },
     
     editPerson: function (ev) {
         //
+        console.log("edit person");
+        document.getElementById("add-person").addEventListener("touchstart", app.setEventsModalPerson);
         let personEdit = app.getPerson(ev.target.parentNode.parentNode.getAttribute("data-id"));
         document.getElementById("fullName").value = personEdit[0].fullName;
         document.getElementById("dateBirth").value = moment(personEdit[0].dob,"MMMM Do YYYY").format("YYYY-MM-DD");
@@ -194,6 +211,7 @@ var app = {
         //
         app.listPerson();
         //
+        document.getElementById("btn-del-person").removeEventListener("touchstart", app.deletePerson);
     },
     
     goGifts: function (ev) {
@@ -223,6 +241,8 @@ var app = {
         document.getElementById("close-modal-gift").dispatchEvent(myClick);
         //
         app.listGifts();
+        //
+        document.getElementById("btn-ok-gift").removeEventListener("touchstart", app.saveGift);
     },
     
     deleteGift: function (ev) {
@@ -246,9 +266,11 @@ var app = {
         try{
             document.querySelector(".input-group").reset();
             document.getElementById("close-modal-person").dispatchEvent(myClick);
+            document.getElementById("btn-close-person").removeEventListener("touchstart", app.clickBtnClose);
         }catch (err){
             document.querySelector(".input-group").reset();
             document.getElementById("close-modal-gift").dispatchEvent(myClick);
+            document.getElementById("btn-close-gift").removeEventListener("touchstart", app.clickBtnClose);
         }
     },
     
