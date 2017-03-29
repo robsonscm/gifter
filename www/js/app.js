@@ -110,6 +110,11 @@ var app = {
     
         app.peopleList = rscmLib.getLocalStorage() || {"people": []};
         console.log(app.peopleList);
+        if (app.peopleList.people.length > 1){
+            app.peopleList.people.sort(function (a,b) {
+                return (a.dob > b.dob) ? -1 : (a.dob < b.dob) ? 1 : 0;
+            })
+        }
     
         app.peopleList.people.forEach(function (person) {
             //
