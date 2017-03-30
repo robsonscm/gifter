@@ -138,7 +138,7 @@ var app = {
                 return peep.id == app.currentPerson;
             });
             if (indexPerson > -1) {
-                app.peopleList.people[indexPerson].fullName = document.getElementById("fullName").value;
+                app.peopleList.people[indexPerson].fullName = document.getElementById("fullName").value.initCap();
                 app.peopleList.people[indexPerson].dob = moment(document.getElementById("dateBirth").value).format("MMMM Do YYYY");
                 rscmLib.setLocalStorage(app.peopleList);
                 app.peopleList = rscmLib.getLocalStorage();
@@ -148,7 +148,7 @@ var app = {
         } else {
             //
             let person = {"id": Date.now(),
-                "fullName": document.getElementById("fullName").value,
+                "fullName": document.getElementById("fullName").value.initCap(),
                 "dob": moment(document.getElementById("dateBirth").value).format("MMMM Do YYYY"),
                 "ideas":[]};
             // console.log(app.peopleList);
@@ -200,6 +200,11 @@ var app = {
     
     goGifts: function (ev) {
         //
+        console.log(ev.target.nodeName);
+        if (ev.target.nodeName === "SPAN") {
+            app.currentPerson = ev.target.parentNode.parentNode.getAttribute("data-id");
+            return;
+        }
         app.currentPerson = ev.target.parentNode.getAttribute("data-id");
         //
     },
@@ -239,10 +244,10 @@ var app = {
         ev.preventDefault();
         //
         let person = app.getPerson(app.currentPerson);
-        let gift = {"idea": document.getElementById("ideaDesc").value,
-                    "at": document.getElementById("store").value,
-                    "cost": document.getElementById("cost").value,
-                    "url": document.getElementById("url").value};
+        let gift = {"idea": document.getElementById("ideaDesc").value.initCap(),
+                    "at": document.getElementById("store").value.initCap(),
+                    "cost": app.validatePrice(document.getElementById("cost").value),
+                    "url": document.getElementById("url").value.toLowerCase()};
         for (var i=0, size=app.peopleList.people.length; i<size; i++){
             if (app.peopleList.people[i].id === person[0].id) {
                 app.peopleList.people[i].ideas.push(gift);
@@ -298,14 +303,20 @@ var app = {
     },
     
     validatePrice: function(value) {
-    let textVal = value;
-    let regex = /^(\$|)([1-9]\d{0,2}(\,\d{3})*|([1-9]\d*))(\.\d{2})?$/;
-    let passed = textVal.match(regex);
-    if (passed == null) {
-        alert("Enter price only. For example: 523.36 or $523.36");
-        textBoxId.Value = "";
+        let textVal = value;
+        textVal = textVal.replace(/,/g, "");
+        if (!textVal.includes("$")){
+            textVal = "$".concat(textVal);
+        }
+        if (!textVal.includes(".")){
+            textVal += ".00";
+        }
+        let regex = /^(\$|)([1-9]\d{0,2}(\,\d{3})*|([1-9]\d*))(\.\d{2})?$/;
+        let passed = textVal.match(regex);
+        return (passed == null) ? "" // alert("Enter price only. For example: 523.36 or $523.36");
+                                : textVal;
     }
-}
+
 };
 
 app.initialize();
