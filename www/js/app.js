@@ -84,27 +84,11 @@ var app = {
         document.getElementById("btn-del-person").style.display = "none";
     },
     
-    // setEventsModalPerson: function(){
-    //     document.getElementById("add-person").addEventListener("touchstart", function () {
-    //         document.getElementById("btn-ok-person").addEventListener("touchstart", app.savePerson);
-    //         document.getElementById("btn-close-person").addEventListener("touchstart", app.clickBtnClose);
-    //         document.getElementById("btn-del-person").addEventListener("touchstart", app.deletePerson);
-    //         document.getElementById("btn-del-person").style.display = "none";
-    //     });
-    // },
-    
     setEventsModalGift: function () {
         document.getElementById("btn-ok-gift").addEventListener("touchstart", app.saveGift);
         document.getElementById("btn-close-gift").addEventListener("touchstart", app.clickBtnClose);
     },
 
-    // setEventsModalGift: function () {
-    //     document.getElementById("add-gift").addEventListener("touchstart", function () {
-    //         document.getElementById("btn-ok-gift").addEventListener("touchstart", app.saveGift);
-    //         document.getElementById("btn-close-gift").addEventListener("touchstart", app.clickBtnClose);
-    //     });
-    // },
-    
     listPerson: function () {
         let ul = document.getElementById("contact-list");
         ul.innerHTML = "";
@@ -113,7 +97,8 @@ var app = {
         console.log(app.peopleList);
         if (app.peopleList.people.length > 1){
             app.peopleList.people.sort(function (a,b) {
-                return (a.dob > b.dob) ? -1 : (a.dob < b.dob) ? 1 : 0;
+                return (moment(a.dob,"MMMM Do YYYY").valueOf() > moment(b.dob,"MMMM Do YYYY").valueOf()) ? 1 :
+                       (moment(a.dob,"MMMM Do YYYY").valueOf() < moment(b.dob,"MMMM Do YYYY").valueOf()) ? -1 : 0;
             })
         }
     
@@ -136,36 +121,6 @@ var app = {
             a1.addEventListener("touchstart", app.editPerson);
         
             a2.addEventListener("touchstart", app.goGifts);
-            //
-        });
-        (ul.innerHTML === "") ? ul.parentNode.style.display = "none" : ul.parentNode.style.display = "block";
-    },
-    
-    listGifts: function () {
-        //
-        let person = app.getPerson(app.currentPerson);
-        let ul = document.getElementById("gift-list");
-        ul.innerHTML = "";
-        //
-        person[0].ideas.forEach(function (gift, index) {
-            //
-            let li = rscmLib.createNewDOM({type: "li"   , class: "table-view-cell media"});
-            let s1 = rscmLib.createNewDOM({type: "span" , class: "pull-right icon icon-trash midline", "data-id":index});
-            let dv = rscmLib.createNewDOM({type: "div"  , class: "media-body", innerHTML: gift.idea});
-            let p1 = rscmLib.createNewDOM({type: "p"    , innerHTML: gift.at});
-            let p2 = rscmLib.createNewDOM({type: "p"    });
-            let p3 = rscmLib.createNewDOM({type: "p"    , innerHTML: gift.cost});
-            let a1 = rscmLib.createNewDOM({type: "a"    , href: gift.url, target: "_blank", innerHTML: gift.url});
-            //
-            p2.appendChild(a1);
-            dv.appendChild(p1);
-            dv.appendChild(p2);
-            dv.appendChild(p3);
-            li.appendChild(s1);
-            li.appendChild(dv);
-            ul.appendChild(li);
-            //
-            s1.addEventListener("touchend", app.deleteGift);
             //
         });
         (ul.innerHTML === "") ? ul.parentNode.style.display = "none" : ul.parentNode.style.display = "block";
@@ -249,6 +204,37 @@ var app = {
         //
     },
     
+    listGifts: function () {
+        //
+        let person = app.getPerson(app.currentPerson);
+        let ul = document.getElementById("gift-list");
+        ul.innerHTML = "";
+        //
+        person[0].ideas.forEach(function (gift, index) {
+            //
+            let li = rscmLib.createNewDOM({type: "li"   , class: "table-view-cell media"});
+            let s1 = rscmLib.createNewDOM({type: "span" , class: "pull-right icon icon-trash midline", "data-id":index});
+            let dv = rscmLib.createNewDOM({type: "div"  , class: "media-body", innerHTML: gift.idea});
+            let p1 = rscmLib.createNewDOM({type: "p"    , innerHTML: gift.at});
+            let p2 = rscmLib.createNewDOM({type: "p"    });
+            let p3 = rscmLib.createNewDOM({type: "p"    , innerHTML: gift.cost});
+            let a1 = rscmLib.createNewDOM({type: "a"    , href: "http://".concat(gift.url), target: "_blank", innerHTML: gift.url});
+            //
+            p2.appendChild(a1);
+            dv.appendChild(p1);
+            dv.appendChild(p2);
+            dv.appendChild(p3);
+            li.appendChild(s1);
+            li.appendChild(dv);
+            ul.appendChild(li);
+            //
+            s1.addEventListener("touchend", app.deleteGift);
+            //
+        });
+        document.getElementById("name-person").innerHTML = person[0].fullName;
+        (ul.innerHTML === "") ? ul.parentNode.style.display = "none" : ul.parentNode.style.display = "block";
+    },
+    
     saveGift: function(ev){
         ev.preventDefault();
         //
@@ -309,7 +295,17 @@ var app = {
         return app.peopleList.people.filter(function (person) {
             return person.id.toString() === id;
         });
+    },
+    
+    validatePrice: function(value) {
+    let textVal = value;
+    let regex = /^(\$|)([1-9]\d{0,2}(\,\d{3})*|([1-9]\d*))(\.\d{2})?$/;
+    let passed = textVal.match(regex);
+    if (passed == null) {
+        alert("Enter price only. For example: 523.36 or $523.36");
+        textBoxId.Value = "";
     }
+}
 };
 
 app.initialize();
