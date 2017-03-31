@@ -74,7 +74,7 @@ var app = {
                 break;
             default:
                 console.log('Page 404!')
-        };
+        }
     },
     
     setEventsModalPerson: function(){
@@ -97,9 +97,9 @@ var app = {
         console.log(app.peopleList);
         if (app.peopleList.people.length > 1){
             app.peopleList.people.sort(function (a,b) {
-                return (moment(a.dob,"MMMM Do YYYY").valueOf() > moment(b.dob,"MMMM Do YYYY").valueOf()) ? 1 :
-                       (moment(a.dob,"MMMM Do YYYY").valueOf() < moment(b.dob,"MMMM Do YYYY").valueOf()) ? -1 : 0;
-            })
+                return (moment(a.dob,"MMMM Do YYYY") > moment(b.dob,"MMMM Do YYYY")) ? 1 :
+                       (moment(a.dob,"MMMM Do YYYY") < moment(b.dob,"MMMM Do YYYY")) ? -1 : 0;
+            });
         }
     
         app.peopleList.people.forEach(function (person) {
@@ -131,6 +131,12 @@ var app = {
         //
         console.log(app.currentPerson);
         //
+        if (!(document.getElementById("fullName").value || "") || (document.getElementById("fullName").value === null)) {
+            document.getElementById("fullName").value = "*** Set a Name ***";
+        }
+        if (!(document.getElementById("dateBirth").value || "") || (document.getElementById("dateBirth").value === null)) {
+            document.getElementById("dateBirth").value = "1900-01-01";
+        }
         app.peopleList = rscmLib.getLocalStorage() || {"people":[]};
         if (app.currentPerson || ""){
             //
@@ -195,6 +201,8 @@ var app = {
         //
         app.currentPerson = null;
         document.querySelector(".input-group").reset();
+        document.getElementById("dateBirth").blur();
+        document.getElementById("fullName").blur();
         document.getElementById("btn-del-person").removeEventListener("touchstart", app.deletePerson);
     },
     
@@ -215,7 +223,9 @@ var app = {
         let ul = document.getElementById("gift-list");
         ul.innerHTML = "";
         //
-        person[0].ideas.forEach(function (gift, index) {
+        person[0].ideas.sort(function (a,b) {
+            return (a.idea > b.idea) ? 1 : (a.idea < b.idea) ? -1 : 0;
+        }).forEach(function (gift, index) {
             //
             let li = rscmLib.createNewDOM({type: "li"   , class: "table-view-cell media"});
             let s1 = rscmLib.createNewDOM({type: "span" , class: "pull-right icon icon-trash midline", "data-id":index});
@@ -243,6 +253,9 @@ var app = {
     saveGift: function(ev){
         ev.preventDefault();
         //
+        if (!(document.getElementById("ideaDesc").value || "") || (document.getElementById("ideaDesc").value === null)) {
+            document.getElementById("ideaDesc").value = "*** Set the Idea Name ***";
+        }
         let person = app.getPerson(app.currentPerson);
         let gift = {"idea": document.getElementById("ideaDesc").value.initCap(),
                     "at": document.getElementById("store").value.initCap(),
